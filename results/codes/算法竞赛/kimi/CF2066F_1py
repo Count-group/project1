@@ -1,0 +1,67 @@
+def is_subsequence(a, b):
+    iter_a = iter(a)
+    return all(x in iter_a for x in b)
+
+def kadane(arr):
+    max_sum = float('-inf')
+    current_sum = 0
+    start = end = 0
+    temp_start = 0
+
+    for i in range(len(arr)):
+        current_sum += arr[i]
+        if current_sum > max_sum:
+            max_sum = current_sum
+            start = temp_start
+            end = i
+        if current_sum < 0:
+            current_sum = 0
+            temp_start = i + 1
+
+    return start, end
+
+def transform(a, b):
+    if not is_subsequence(a, b):
+        return -1
+
+    operations = []
+    i = 0
+    j = 0
+
+    while i < len(a) and j < len(b):
+        if a[i] == b[j]:
+            i += 1
+            j += 1
+        else:
+            start, end = kadane(a[i:])
+            start += i
+            end += i
+            operations.append((start + 1, end + 1, len(b[j:])))
+            operations.append(b[j:])
+            i = end + 1
+            j = len(b)
+
+    if i < len(a):
+        operations.append((i + 1, len(a), len(b[j:])))
+        operations.append(b[j:])
+
+    return operations
+
+def main():
+    t = int(input())
+    for _ in range(t):
+        n, m = map(int, input().split())
+        a = list(map(int, input().split()))
+        b = list(map(int, input().split()))
+
+        result = transform(a, b)
+        if result == -1:
+            print(-1)
+        else:
+            print(len(result) // 2)
+            for i in range(0, len(result), 2):
+                print(*result[i])
+                print(*result[i + 1])
+
+if __name__ == "__main__":
+    main()
